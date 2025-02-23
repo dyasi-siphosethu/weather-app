@@ -3,14 +3,14 @@ import '../global.css';
 import { StatusBar } from 'expo-status-bar';
 import { theme } from "@/theme/theme-style";
 
-import { CalendarDaysIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
-import { MapPinIcon } from 'react-native-heroicons/solid';
+import { CalendarDaysIcon, MagnifyingGlassIcon, HeartIcon as HeartIconOutline} from 'react-native-heroicons/outline';
+import { MapPinIcon, HeartIcon as HeartIconFilled } from 'react-native-heroicons/solid';
 import { useCallback, useEffect, useState } from "react";
 import { debounce } from 'lodash'
 import { fetchLocations, fetchWeatherForecast} from "@/api/weather";
 import { weatherImages } from "@/constants";
 import * as Progress from 'react-native-progress';
-import { getData, storeData } from "@/utils/asyncStorage";
+import { getCityNames, getData, saveCityNames, storeData } from "@/utils/asyncStorage";
 import { WeatherForecast, ForecastParams, LocationParams, Location } from "@/constants/types";
 
 export default function Index() {
@@ -19,11 +19,15 @@ export default function Index() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [weather, setWeather] = useState<WeatherForecast | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isHeartFilled, setIsHeartFilled] = useState(false);
+  const [cityNames, setCityNames] = useState<string[]>([]);
 
   const handleLocation = (loc: Location): void => {
     setLocations([]);
     toggleSearch(false);
     setLoading(true);
+    let cities = cityNames.includes(loc?.name);
+    setIsHeartFilled(cities);
     
     const params: ForecastParams = {
       cityName: loc.name,
@@ -39,6 +43,9 @@ export default function Index() {
     });
   };
 
+  const current = weather?.current;
+  const location = weather?.location;
+
   const handleSearch = (value: string): void => {
     if (value.length > 2) {
       const params: LocationParams = { cityName: value };
@@ -51,30 +58,64 @@ export default function Index() {
 
   useEffect(() => {
     fetchMyWeatherData();
+    fetchMyCities();
   }, []);
+
+  useEffect(() => {
+    if (location?.name) {
+      setIsHeartFilled(cityNames.includes(location.name));
+    }
+  }, [cityNames, location]); 
 
   const fetchMyWeatherData = async (): Promise<void> => {
     let myCity = await getData('city');
-    let cityName = 'Cape Town';
-    if (myCity) {
-      cityName = myCity;
-    }
+    let cityName = '';
+
+    cityName = myCity;
+
     fetchWeatherForecast({
       cityName,
       days: 7
     }).then(data => {
       setWeather(data);
+      console.log(weather?.location.name);
       setLoading(false);
     });
   };
 
+  const fetchMyCities = async (): Promise<void> => {
+    const savedCities = await getCityNames();
+  setCityNames(savedCities);
+
+  // Check if current city is in saved cities and update heart state
+  if (location?.name && savedCities.includes(location.name)) {
+    setIsHeartFilled(true);
+  } else {
+    setIsHeartFilled(false);
+  }
+  }
+
   const handleTextDebounce = useCallback(debounce(handleSearch, 1200), []);
 
-  const current = weather?.current;
-  const location = weather?.location;
+
 
   const getWeatherImage = (condition: string | undefined): any => {
     return weatherImages[condition as keyof typeof weatherImages] || weatherImages['other'];
+  };
+
+  const handleHeartClick = () => {
+    
+    if(location?.name != undefined){
+      let cities = cityNames.includes(location?.name);
+
+      if(!cities){
+        cityNames.push(location?.name);
+        saveCityNames(cityNames);
+        setIsHeartFilled(true);
+        console.log(cityNames);
+      }
+    }
+    setIsHeartFilled(true);
   };
 
   return (
@@ -131,6 +172,18 @@ export default function Index() {
                   </View>
                 ) : null
               }
+            </View>
+
+            <View className="flex-row justify-end items-center">
+              <TouchableOpacity
+                onPress={() => handleHeartClick()} // Toggle heart fill state on click
+                style={{ backgroundColor: theme.bgWhite(0) }}
+                className="rounded-full p-5 m-1"
+              >
+                {
+                  isHeartFilled ? <HeartIconFilled/> : <HeartIconOutline/>
+                }
+              </TouchableOpacity>
             </View>
 
             {/*forecast area */}
