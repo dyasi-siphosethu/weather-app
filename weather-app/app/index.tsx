@@ -180,6 +180,71 @@ export default function Index() {
               </View>
             </View>
 
+            {/*hourly forecasts */}
+            <View className="mb-2 space-y-3">
+              <View className="flex-row items-center mx-5 space-x-2">
+                <CalendarDaysIcon size="22" color="white" />
+                <Text className="text-white text-base">Hourly Forecast</Text>
+              </View>
+              
+              <ScrollView
+                horizontal
+                contentContainerStyle={{ paddingHorizontal: 15 }}
+                showsHorizontalScrollIndicator={false}
+              >
+                {(() => {
+                  const today = new Date().toISOString().split("T")[0];
+                  const currentHour = new Date().getHours();
+                  
+                  // Get today's forecast
+                  const todayForecast = weather?.forecast?.forecastday.find(day => day.date === today);
+                  const todayHours = todayForecast?.hour.filter(hourly => {
+                    const forecastHour = new Date(hourly.time).getHours();
+                    return forecastHour >= currentHour;
+                  }) || [];
+
+                  // Get tomorrow's forecast (if available)
+                  const tomorrowForecast = weather?.forecast?.forecastday.find(day => {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    return day.date === tomorrow.toISOString().split("T")[0];
+                  });
+
+                  const remainingHoursNeeded = 24 - todayHours.length; // Fill up to 24 hours
+                  const tomorrowHours = tomorrowForecast?.hour.slice(0, remainingHoursNeeded) || [];
+
+                  // Combine today's remaining hours + tomorrow's initial hours
+                  const full24Hours = [...todayHours, ...tomorrowHours];
+
+                  return full24Hours.map((hourly, index) => {
+                    const hourTime = new Date(hourly.time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    });
+                    
+
+                    return (
+                      <View
+                        key={index}
+                        className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
+                        style={{ backgroundColor: theme.bgWhite(0.15) }}
+                      >
+                        <Image
+                          source={getWeatherImage(hourly.condition.text)}
+                          className="h-11 w-11"
+                        />
+                        <Text className="text-white">{hourTime}</Text>
+                        <Text className="text-white text-xl font-semibold">
+                          {hourly.temp_c}°C
+                        </Text>
+                      </View>
+                    );
+                  });
+                })()}
+              </ScrollView>
+            </View>
+
             {/*forecast for next days */}
             <View className="mb-2 space-y-3">
               <View className="flex-row items-center mx-5 space-x-2">

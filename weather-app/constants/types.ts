@@ -15,15 +15,25 @@ export type ForecastParams = {
     lat: number;
     lon: number;
   }
+
+  type WeatherCondition = {
+    text: string;
+    icon: string;
+    code: number;
+};
+
+type HourlyWeather = {
+    time_epoch: number;
+    time: string;
+    temp_c: number;
+    condition: WeatherCondition;
+};
   
   export type WeatherForecast = {
     location: Location;
     current: {
       temp_c: number;
-      condition: {
-        text: string;
-        icon: string;
-      };
+      condition: WeatherCondition;
       humidity: number;
       wind_kph: number;
     };
@@ -49,9 +59,12 @@ export type ForecastParams = {
           is_moon_up: number;
           is_sun_up: number;
         };
+        hour: HourlyWeather[];
       }>;
     };
   };
+
+
 
   export type LocationSearchResults = Array<Location>;
   
