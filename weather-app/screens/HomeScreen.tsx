@@ -2,7 +2,7 @@ import { fetchLocations, fetchWeatherForecast } from "@/api/weather";
 import { weatherImages } from "@/constants";
 import { ForecastParams, LocationParams, WeatherForecast, Location } from "@/constants/types";
 import { theme } from "@/theme/theme-style";
-import { getCityNames, getData, saveCityNames, storeData } from "@/utils/asyncStorage";
+import { clearStorage, getCityNames, getData, saveCityNames, storeData } from "@/utils/asyncStorage";
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Image, SafeAreaView, TouchableOpacity, Text, ScrollView, TextInput } from "react-native";
@@ -91,8 +91,9 @@ export default function HomeScreen({ navigation, route }: any){
 
   const fetchMyWeatherData = async (): Promise<void> => {
     let myCity = await getData('city');
-    if(!myCity) return;
-
+    if(!myCity){
+        myCity = 'Cape Town';
+    }
     fetchWeatherForecast({
       cityName: myCity,
       days: 7
