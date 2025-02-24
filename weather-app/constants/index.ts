@@ -37,3 +37,7 @@ export const weatherImages: Record<WeatherCondition, any> = {
   'Moderate or heavy rain with thunder': require('../assets/images/heavyrain.png'),
   'other': require('../assets/images/moderaterain.png'),
 };
+
+  export const getWeatherImage = (condition: string | undefined): any => {
+    return weatherImages[condition as keyof typeof weatherImages] || weatherImages['other'];
+  };

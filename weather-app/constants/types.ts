@@ -18,7 +18,7 @@ export type ForecastParams = {
     lon: number;
   }
 
-  type WeatherCondition = {
+  export type WeatherCondition = {
     text: string;
     icon: string;
     code: number;
@@ -74,4 +74,3 @@ type HourlyWeather = {
     navigation: any;
     route: RouteProp<any, any>;
   };
-  

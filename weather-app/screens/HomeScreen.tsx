@@ -10,6 +10,10 @@ import { MagnifyingGlassIcon, MapPinIcon, CalendarDaysIcon, HeartIcon as HeartIc
 import { HeartIcon as HeartIconFilled } from "react-native-heroicons/solid";
 import * as Progress from 'react-native-progress';
 import '../global.css';
+import { DailyForecast } from "@/components/DailyForecast/DailyForecast.component";
+import { HourlyForecast } from "@/components/HourlyForecast/HourlyForecast.component";
+import { DailyStats } from "@/components/DailyStats/DailyStats.component";
+import { SearchBar } from "@/components/SearchBar/SearchBar.component";
 
 export default function HomeScreen({ navigation, route }: any){
       // State declarations with types
@@ -112,7 +116,7 @@ export default function HomeScreen({ navigation, route }: any){
   }
     const handleTextDebounce = useCallback(
         debounce((text) => handleSearch(text), 1200),
-        [handleSearch] // Depend on handleSearch to ensure it updates
+        [handleSearch]
       );
 
   const getWeatherImage = (condition: string | undefined): any => {
@@ -202,6 +206,15 @@ export default function HomeScreen({ navigation, route }: any){
                 ) : null
               }
             </View>
+{/* 
+            <SearchBar 
+                handleTextDebounce={handleTextDebounce}
+                locations={locations}
+                showSearch={showSearch}
+                toggleSearch={toggleSearch}
+                handleLocation={handleLocation}
+                theme={{ bgWhite: (opacity) => `rgba(255,255,255,${opacity})` }} // Example theme function
+            /> */}
 
             {/*forecast area */}
             <View className="mx-4 flex justify-around flex-1 mb-2">
@@ -228,127 +241,14 @@ export default function HomeScreen({ navigation, route }: any){
               </View>
 
               {/* other stats */}
-              <View className="flex-row justify-between mx-4">
-                <View className="flex-row space-x-2 items-center">
-                  <Image source={require('../assets/icons/wind.png')} className="h-6 w-6" />
-                  <Text className="text-white text-base pl-2">
-                    {current?.wind_kph}km
-                  </Text>
-                </View>
-                <View className="flex-row space-x-2 items-center">
-                  <Image source={require('../assets/icons/rainy.png')} className="h-6 w-6"/>
-                  <Text className="text-white text-base pl-2">
-                    {current?.humidity}%
-                  </Text>
-                </View>
-                <View className="flex-row space-x-2 items-center">
-                  <Image source={require('../assets/icons/sunset.png')} className="h-6 w-6" />
-                  <Text className="text-white text-base pl-2">
-                    {weather?.forecast.forecastday[0]?.astro?.sunrise}
-                  </Text>
-                </View>
-              </View>
+              <DailyStats current={current} weather={weather}/>
             </View>
 
             {/*hourly forecasts */}
-            <View className="mb-2 space-y-3">
-              <View className="flex-row items-center mx-5 space-x-2 pb-2">
-                <CalendarDaysIcon size="22" color="white" />
-                <Text className="text-white text-base font-semibold pl-2">Hourly Forecast</Text>
-              </View>
-              
-              <ScrollView
-                horizontal
-                contentContainerStyle={{ paddingHorizontal: 15 }}
-                showsHorizontalScrollIndicator={false}
-              >
-                {(() => {
-                  const today = new Date().toISOString().split("T")[0];
-                  const currentHour = new Date().getHours();
-                  
-                  // Get today's forecast
-                  const todayForecast = weather?.forecast?.forecastday.find(day => day.date === today);
-                  const todayHours = todayForecast?.hour.filter(hourly => {
-                    const forecastHour = new Date(hourly.time).getHours();
-                    return forecastHour >= currentHour;
-                  }) || [];
-
-                  // Get tomorrow's forecast (if available)
-                  const tomorrowForecast = weather?.forecast?.forecastday.find(day => {
-                    const tomorrow = new Date();
-                    tomorrow.setDate(tomorrow.getDate() + 1);
-                    return day.date === tomorrow.toISOString().split("T")[0];
-                  });
-
-                  const remainingHoursNeeded = 24 - todayHours.length; // Fill up to 24 hours
-                  const tomorrowHours = tomorrowForecast?.hour.slice(0, remainingHoursNeeded) || [];
-
-                  // Combine today's remaining hours + tomorrow's initial hours
-                  const full24Hours = [...todayHours, ...tomorrowHours];
-
-                  return full24Hours.map((hourly, index) => {
-                    const hourTime = new Date(hourly.time).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    });
-                    
-
-                    return (
-                      <View
-                        key={index}
-                        className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-                        style={{ backgroundColor: theme.bgWhite(0.15) }}
-                      >
-                        <Image
-                          source={getWeatherImage(hourly.condition.text)}
-                          className="h-11 w-11"
-                        />
-                        <Text className="text-white">{hourTime}</Text>
-                        <Text className="text-white text-xl font-semibold">
-                          {hourly.temp_c}°C
-                        </Text>
-                      </View>
-                    );
-                  });
-                })()}
-              </ScrollView>
-            </View>
+            <HourlyForecast weather={weather}/>
 
             {/*forecast for next days */}
-            <View className="mb-2 space-y-3">
-              <View className="flex-row items-center mx-5 space-x-2 pb-2">
-                <CalendarDaysIcon size="22" color="white"/>
-                <Text className="text-white text-base font-semibold pl-2"> Daily forecast</Text>
-              </View>
-              <ScrollView 
-                horizontal 
-                contentContainerStyle={{paddingHorizontal: 15}} 
-                showsHorizontalScrollIndicator={false}
-              >
-                {
-                  weather?.forecast?.forecastday?.map((item, index) => {
-                    const date = new Date(item.date);
-                    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-
-                    return(
-                      <View
-                        key={index}
-                        className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
-                        style={{backgroundColor: theme.bgWhite(0.15)}}
-                      >
-                        <Image source={getWeatherImage(item?.day?.condition?.text)}
-                          className="h-11 w-11" />
-                        <Text className="text-white">{dayName}</Text>
-                        <Text className="text-white text-xl font-semibold">
-                          {item?.day?.avgtemp_c}&deg;
-                        </Text>
-                      </View>
-                    )
-                  })
-                }
-              </ScrollView>
-            </View>
+            <DailyForecast weather={weather}/>
           </SafeAreaView>
         )
       }
