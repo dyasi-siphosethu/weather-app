@@ -1,3 +1,5 @@
+import { RouteProp } from "@react-navigation/native";
+
 // Type Definitions
 export type ForecastParams = {
     cityName: string;
@@ -67,4 +69,9 @@ type HourlyWeather = {
 
 
   export type LocationSearchResults = Array<Location>;
+
+  export type HomeScreenProps = {
+    navigation: any;
+    route: RouteProp<any, any>;
+  };
   

@@ -3,8 +3,6 @@ import { weatherImages } from "@/constants";
 import { ForecastParams, LocationParams, WeatherForecast, Location } from "@/constants/types";
 import { theme } from "@/theme/theme-style";
 import { getCityNames, getData, saveCityNames, storeData } from "@/utils/asyncStorage";
-import { RouteProp, useNavigation } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Image, SafeAreaView, TouchableOpacity, Text, ScrollView, TextInput } from "react-native";
@@ -12,11 +10,6 @@ import { MagnifyingGlassIcon, MapPinIcon, CalendarDaysIcon, HeartIcon as HeartIc
 import { HeartIcon as HeartIconFilled } from "react-native-heroicons/solid";
 import * as Progress from 'react-native-progress';
 import '../global.css';
-
-type HomeScreenProps = {
-    navigation: any;
-    route: RouteProp<any, any>;
-  };
 
 export default function HomeScreen({ navigation, route }: any){
       // State declarations with types
@@ -28,8 +21,6 @@ export default function HomeScreen({ navigation, route }: any){
     const [cityNames, setCityNames] = useState<string[]>([]);
 
     const { selectedCity } = route.params || {};
-
-    //const navigation = useNavigation();
 
   const handleLocation = (loc: Location): void => {
     setLocations([]);
@@ -78,6 +69,7 @@ export default function HomeScreen({ navigation, route }: any){
       
       fetchLocations(params).then((data: Location[] | null) => {
         if (data) setLocations(data);
+        toggleSearch(!showSearch);
       });
     }
   };
@@ -95,12 +87,10 @@ export default function HomeScreen({ navigation, route }: any){
 
   const fetchMyWeatherData = async (): Promise<void> => {
     let myCity = await getData('city');
-    let cityName = '';
-
-    cityName = myCity;
+    if(!myCity) return;
 
     fetchWeatherForecast({
-      cityName,
+      cityName: myCity,
       days: 7
     }).then(data => {
       setWeather(data);
@@ -120,8 +110,10 @@ export default function HomeScreen({ navigation, route }: any){
         setIsHeartFilled(false);
     }
   }
-
-    const handleTextDebounce = useCallback(debounce(handleSearch, 1200), []);
+    const handleTextDebounce = useCallback(
+        debounce((text) => handleSearch(text), 1200),
+        [handleSearch] // Depend on handleSearch to ensure it updates
+      );
 
   const getWeatherImage = (condition: string | undefined): any => {
     return weatherImages[condition as keyof typeof weatherImages] || weatherImages['other'];
@@ -161,12 +153,12 @@ export default function HomeScreen({ navigation, route }: any){
                     <Text className="text-white text-center text-xl">Go to Favourites</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={() => handleHeartClick()} // Toggle heart fill state on click
+                    onPress={() => handleHeartClick()}
                     style={{ backgroundColor: theme.bgWhite(0) }}
                     className="rounded-full p-5 m-1"
                 >
                     {
-                        isHeartFilled ? <HeartIconFilled/> : <HeartIconOutline/>
+                        isHeartFilled ? <HeartIconFilled color="#8b0000"/> : <HeartIconOutline color="#8b0000"/>
                     }
                 </TouchableOpacity>
             </View>
@@ -239,19 +231,19 @@ export default function HomeScreen({ navigation, route }: any){
               <View className="flex-row justify-between mx-4">
                 <View className="flex-row space-x-2 items-center">
                   <Image source={require('../assets/icons/wind.png')} className="h-6 w-6" />
-                  <Text className="text-white font-semibold text-base pl-2">
+                  <Text className="text-white text-base pl-2">
                     {current?.wind_kph}km
                   </Text>
                 </View>
                 <View className="flex-row space-x-2 items-center">
                   <Image source={require('../assets/icons/rainy.png')} className="h-6 w-6"/>
-                  <Text className="text-white font-semibold text-base pl-2">
+                  <Text className="text-white text-base pl-2">
                     {current?.humidity}%
                   </Text>
                 </View>
                 <View className="flex-row space-x-2 items-center">
                   <Image source={require('../assets/icons/sunset.png')} className="h-6 w-6" />
-                  <Text className="text-white font-semibold text-base pl-2">
+                  <Text className="text-white text-base pl-2">
                     {weather?.forecast.forecastday[0]?.astro?.sunrise}
                   </Text>
                 </View>
@@ -260,9 +252,9 @@ export default function HomeScreen({ navigation, route }: any){
 
             {/*hourly forecasts */}
             <View className="mb-2 space-y-3">
-              <View className="flex-row items-center mx-5 space-x-2">
+              <View className="flex-row items-center mx-5 space-x-2 pb-2">
                 <CalendarDaysIcon size="22" color="white" />
-                <Text className="text-white text-base">Hourly Forecast</Text>
+                <Text className="text-white text-base font-semibold pl-2">Hourly Forecast</Text>
               </View>
               
               <ScrollView
@@ -325,9 +317,9 @@ export default function HomeScreen({ navigation, route }: any){
 
             {/*forecast for next days */}
             <View className="mb-2 space-y-3">
-              <View className="flex-row items-center mx-5 space-x-2">
+              <View className="flex-row items-center mx-5 space-x-2 pb-2">
                 <CalendarDaysIcon size="22" color="white"/>
-                <Text className="text-white text-base"> Daily forecast</Text>
+                <Text className="text-white text-base font-semibold pl-2"> Daily forecast</Text>
               </View>
               <ScrollView 
                 horizontal 

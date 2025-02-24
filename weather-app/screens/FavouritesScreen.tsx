@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import { getCityNames } from "@/utils/asyncStorage";
 import { fetchWeatherForecast } from "@/api/weather";
-import { ForecastParams, WeatherForecast } from "../constants/types"; // Adjust as needed
+import { ForecastParams, WeatherForecast } from "../constants/types";
 import { weatherImages } from "@/constants";
 import { theme } from "@/theme/theme-style";
+import * as Progress from 'react-native-progress';
 type FavouritesScreenProps = {
     navigation: any;
   };
@@ -61,12 +61,13 @@ const FavouritesScreen: React.FC<FavouritesScreenProps> = ({ navigation }: any) 
     };
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 relative pt-10">
         <Image blurRadius={50} source={require('../assets/images/ocean.jpg')} className="absolute h-full w-full" resizeMode="cover"/>
-      <Text className="text-white text-3xl font-bold px-6 pt-12">Weather</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#ffffff" />
+        <View className="flex-1 flex-row justify-center items-center">
+            <Progress.CircleSnail thickness={10} size={140} color="#0bb3b2"/>
+        </View>
       ) : (
         <FlatList
             className="px-4 pt-12"
@@ -78,7 +79,7 @@ const FavouritesScreen: React.FC<FavouritesScreenProps> = ({ navigation }: any) 
                     <View className="flex-1">
                         <Text className="text-white text-3xl font-bold">{item.location.name}</Text>
                         <Text className="text-gray-300">{item.current.condition.text}</Text>
-                        <Text className="text-white text-3xl font-bold">{item.current.temp_c}°</Text>
+                        <Text className="text-white text-3xl font-bold">{item.current.temp_c}&deg;</Text>
                     </View>
                     <Image
                         source={getWeatherImage(item.current.condition.text)}
