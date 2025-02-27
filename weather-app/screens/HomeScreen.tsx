@@ -97,7 +97,6 @@ export default function HomeScreen({ navigation, route }: any){
       days: 7
     }).then(data => {
       setWeather(data);
-      console.log(weather?.location.name);
       setLoading(false);
     });
   };
@@ -130,7 +129,6 @@ export default function HomeScreen({ navigation, route }: any){
         cityNames.push(location?.name);
         saveCityNames(cityNames);
         setIsHeartFilled(true);
-        console.log(cityNames);
       }
     }
     setIsHeartFilled(true);
