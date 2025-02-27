@@ -21,7 +21,6 @@ const FavouritesScreen: React.FC<FavouritesScreenProps> = ({ navigation }: any) 
     });
   };
 
-  // Fetch stored city names
   const fetchMyCities = async (): Promise<void> => {
     const savedCities = await getCityNames();
     setCityNames(savedCities);
@@ -31,7 +30,6 @@ const FavouritesScreen: React.FC<FavouritesScreenProps> = ({ navigation }: any) 
     fetchMyCities();
   }, []);
 
-  // Fetch weather data for all cities
   useEffect(() => {
     if (cityNames.length === 0) return;
 

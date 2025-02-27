@@ -1,6 +1,5 @@
 import { RouteProp } from "@react-navigation/native";
 
-// Type Definitions
 export type ForecastParams = {
     cityName: string;
     days: number;

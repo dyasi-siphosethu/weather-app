@@ -1,7 +1,5 @@
-// API Key
 export const apikey: string = 'edac6f29c8ee470fa5071028252202';
 
-// Define the types for weather images
 export type WeatherCondition = 
   | 'Partly cloudy'
   | 'Moderate rain'
@@ -19,7 +17,6 @@ export type WeatherCondition =
   | 'Moderate or heavy rain with thunder'
   | 'other';
 
-// Weather images object with a strict mapping of conditions to image sources
 export const weatherImages: Record<WeatherCondition, any> = {
   'Partly cloudy': require('../assets/images/partlycloudy.png'),
   'Moderate rain': require('../assets/images/moderaterain.png'),

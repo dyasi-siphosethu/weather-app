@@ -1,5 +1,4 @@
-import { WeatherCondition } from "@/constants/types";
-import { WeatherForecast } from "@/constants/types";
+import { WeatherCondition, WeatherForecast } from "@/constants/types";
 
 export interface DailyStatsProps {
     current: {

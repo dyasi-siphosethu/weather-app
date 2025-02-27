@@ -2,29 +2,27 @@ import { fetchLocations, fetchWeatherForecast } from "@/api/weather";
 import { weatherImages } from "@/constants";
 import { ForecastParams, LocationParams, WeatherForecast, Location } from "@/constants/types";
 import { theme } from "@/theme/theme-style";
-import { clearStorage, getCityNames, getData, saveCityNames, storeData } from "@/utils/asyncStorage";
+import { getCityNames, getData, saveCityNames, storeData } from "@/utils/asyncStorage";
 import { debounce } from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Image, SafeAreaView, TouchableOpacity, Text, ScrollView, TextInput } from "react-native";
-import { MagnifyingGlassIcon, MapPinIcon, CalendarDaysIcon, HeartIcon as HeartIconOutline } from "react-native-heroicons/outline";
+import { View, Image, SafeAreaView, TouchableOpacity, Text, TextInput } from "react-native";
+import { MagnifyingGlassIcon, MapPinIcon, HeartIcon as HeartIconOutline } from "react-native-heroicons/outline";
 import { HeartIcon as HeartIconFilled } from "react-native-heroicons/solid";
 import * as Progress from 'react-native-progress';
 import '../global.css';
 import { DailyForecast } from "@/components/DailyForecast/DailyForecast.component";
 import { HourlyForecast } from "@/components/HourlyForecast/HourlyForecast.component";
 import { DailyStats } from "@/components/DailyStats/DailyStats.component";
-import { SearchBar } from "@/components/SearchBar/SearchBar.component";
 
 export default function HomeScreen({ navigation, route }: any){
-      // State declarations with types
-    const [showSearch, toggleSearch] = useState<boolean>(false);
-    const [locations, setLocations] = useState<Location[]>([]);
-    const [weather, setWeather] = useState<WeatherForecast | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isHeartFilled, setIsHeartFilled] = useState(false);
-    const [cityNames, setCityNames] = useState<string[]>([]);
+  const [showSearch, toggleSearch] = useState<boolean>(false);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [weather, setWeather] = useState<WeatherForecast | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isHeartFilled, setIsHeartFilled] = useState(false);
+  const [cityNames, setCityNames] = useState<string[]>([]);
 
-    const { selectedCity } = route.params || {};
+  const { selectedCity } = route.params || {};
 
   const handleLocation = (loc: Location): void => {
     setLocations([]);
@@ -63,7 +61,7 @@ export default function HomeScreen({ navigation, route }: any){
         storeData('city', selectedCity);
       });
     } else {
-      fetchMyWeatherData(); // Default weather fetch logic
+      fetchMyWeatherData();
     }
   }, [selectedCity]);
 
@@ -108,7 +106,6 @@ export default function HomeScreen({ navigation, route }: any){
     const savedCities = await getCityNames();
     setCityNames(savedCities);
 
-    // Check if current city is in saved cities and update heart state
     if (location?.name && savedCities.includes(location.name)) {
         setIsHeartFilled(true);
     } else {
@@ -207,19 +204,8 @@ export default function HomeScreen({ navigation, route }: any){
                 ) : null
               }
             </View>
-{/* 
-            <SearchBar 
-                handleTextDebounce={handleTextDebounce}
-                locations={locations}
-                showSearch={showSearch}
-                toggleSearch={toggleSearch}
-                handleLocation={handleLocation}
-                theme={{ bgWhite: (opacity) => `rgba(255,255,255,${opacity})` }} // Example theme function
-            /> */}
 
-            {/*forecast area */}
             <View className="mx-4 flex justify-around flex-1 mb-2">
-              {/*location */}
               <Text className="text-white text-center text-3xl font-bold">
                 {location?.name}, 
                 <Text className="text-lg font-semibold text-gray-300">
@@ -227,11 +213,9 @@ export default function HomeScreen({ navigation, route }: any){
                 </Text>
               </Text>
 
-              {/*weather image */}
               <View className="flex-row justify-center">
                 <Image source={getWeatherImage(current?.condition?.text)} className="w-40 h-40" />
               </View>
-              {/* degree celsius */}
               <View className="space-y-1">
                 <Text className="text-center font-bold text-white text-5xl ml-5">
                   {current?.temp_c}&deg;
@@ -241,14 +225,11 @@ export default function HomeScreen({ navigation, route }: any){
                 </Text>
               </View>
 
-              {/* other stats */}
               <DailyStats current={current} weather={weather}/>
             </View>
 
-            {/*hourly forecasts */}
             <HourlyForecast weather={weather}/>
 
-            {/*forecast for next days */}
             <DailyForecast weather={weather}/>
           </SafeAreaView>
         )

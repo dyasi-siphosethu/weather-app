@@ -9,14 +9,12 @@ export const HourlyForecast = ({weather}: HourlyForecastProps): JSX.Element => {
     const today = new Date().toISOString().split("T")[0];
     const currentHour = new Date().getHours();
 
-    // Get today's forecast
     const todayForecast = weather?.forecast?.forecastday.find(day => day.date === today);
     const todayHours = todayForecast?.hour.filter(hourly => {
       const forecastHour = new Date(hourly.time).getHours();
       return forecastHour >= currentHour;
     }) || [];
 
-    // Get tomorrow's forecast
     const tomorrowForecast = weather?.forecast?.forecastday.find(day => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -25,8 +23,6 @@ export const HourlyForecast = ({weather}: HourlyForecastProps): JSX.Element => {
 
       const remainingHoursNeeded = 24 - todayHours.length; 
       const tomorrowHours = tomorrowForecast?.hour.slice(0, remainingHoursNeeded) || [];
-
-      // Combine today's remaining hours + tomorrow's initial hours
       const full24Hours = [...todayHours, ...tomorrowHours];
 
     return (

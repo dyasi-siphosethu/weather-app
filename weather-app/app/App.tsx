@@ -1,13 +1,11 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { View, Text } from 'react-native';
 import HomeScreen from '@/screens/HomeScreen';
 import FavouritesScreen from '@/screens/FavouritesScreen';
 
 type RootStackParamList = {
     HomeScreen: undefined;
-    FavouritesScreen: undefined; // Ensure this matches the screen name
+    FavouritesScreen: undefined;
   };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
